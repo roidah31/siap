@@ -13,9 +13,8 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
         $username_login = $user->username;
-
-    // Get unit data
-    $units = DB::connection('mitra')->table('gate.sc_userrole as ur')
+        // Get unit data
+        $units = DB::connection('mitra')->table('gate.sc_userrole as ur')
         ->join('gate.sc_role as r', 'r.koderole', '=', 'ur.koderole')
         ->join('gate.ms_unit as u', 'u.kodeunit', '=', 'ur.kodeunit')
         ->join('gate.sc_user as us', 'us.userid', '=', 'ur.userid')
@@ -28,22 +27,13 @@ class ProfileController extends Controller
         ->distinct()
         ->get();
 
-    // Convert units to array for JavaScript
-    // $unitsArray = $units->map(function($unit) {
-    //     return [
-    //         'kodeunit' => $unit->kodeunit,
-    //         'namaunit' => $unit->namaunit
-    //     ];
-    // })->toArray();
-    $unitArr = DB::connection('mitra')->table('gate.sc_userrole as ur')
-    ->join('gate.sc_role as r', 'r.koderole', '=', 'ur.koderole')
-    ->join('gate.ms_unit as u', 'u.kodeunit', '=', 'ur.kodeunit')
-    ->select([
-        'u.kodeunit',
-        'u.namaunit'
-    ])->get();
-
-     
+        $unitArr = DB::connection('mitra')->table('gate.ms_unit')
+        ->select([
+                'kodeunit',
+                'namaunit'])
+        ->get();  
+    
+   
         return view('profile.edit', compact('user','units','unitArr'));
     }
 
@@ -107,7 +97,6 @@ class ProfileController extends Controller
     public function updatePassword(Request $request)
     {
         $user = auth()->user();
-
         // Validate the request
         $validated = $request->validate([
             'current_password' => ['required', function ($attribute, $value, $fail) use ($user) {
@@ -143,38 +132,36 @@ class ProfileController extends Controller
         }
     }
 
-    public function getNamaUnit(Request $request)
+    public function getNamaUnit($kodeunit)
     {
-        $kodeGedung = $request->input('kode_gedung');
-        $lantai = $request->input('lantai');
+        $data = DB::connection('mitra')->table('gate.ms_unit')
+            ->where('kodeunit', $kodeunit)
+            ->first(['namaunit']);
 
-       //  if ($kodeGedung && $lantai) {
-            $units = Unit::where('kode_gedung', $kodeGedung)
-                ->where('lantai', $lantai)
-                ->select('nama_unit')
-                   ->get();
-            return response()->json($units);
-       //  }
-
-        return response()->json([], 400); // Jika data tidak valid
-    }
-
-    public function getNamaGedung(Request $request)
-    {
-        $kodeunit = $request->kodeunit;
-            $namaunit = DB::connection('mitra')->table('gate.ms_unit')
-            ->where('kode_gedung', $kodeunit)->value('namaunit'); // Ambil nama_gedung
-            return response()->json(['nama_gedung' => $namaunit]);      
+        // Cek apakah data ditemukan
+        if ($data) {
+            return response()->json($data);
+        } else {
+            return response()->json(['namaunit' => 'Unit tidak ditemukan'], 404);
+        }
     }
     public function getKodeUnit()
     {
-        $data = DB::connection('mitra')->table('gate.ms_unit')
-               ->select([
-            'kodeunit',
-            'namaunit'
-        ])      
+        $user = auth()->user();
+        $username_login = $user->username;
+        $data = DB::connection('mitra')->table('gate.sc_userrole as ur')
+        ->join('gate.sc_role as r', 'r.koderole', '=', 'ur.koderole')
+        ->join('gate.ms_unit as u', 'u.kodeunit', '=', 'ur.kodeunit')
+        ->join('gate.sc_user as us', 'us.userid', '=', 'ur.userid')
+        ->leftJoin('akademik.ms_mahasiswa as ms', 'ms.nim', '=', 'us.username')
+        ->select([
+            'u.kodeunit',
+            'u.namaunit'
+        ])
+        ->where('us.username', $username_login)
+        ->distinct()
         ->get();       
-    return response()->json($data);
+        return response()->json($data);
     }
  
 

@@ -16,15 +16,13 @@
                         <form class="form-horizontal form-element col-12" method="POST" action="{{ URL('/profile/update') }}" id="profileForm">
                             @csrf
                             @method('POST')
-                            
-                            {{-- Success Message --}}
+                            <!-- {{-- Success Message --}}
                             @if(session('success') || session('status') === 'profile-updated')
                                 <div class="alert alert-success alert-dismissible fade show">
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                     {{ session('success') ?: 'Profile updated successfully!' }}
                                 </div>
                             @endif
-
                             {{-- Error Messages --}}
                             @if($errors->any())
                                 <div class="alert alert-danger alert-dismissible fade show">
@@ -35,8 +33,7 @@
                                         @endforeach
                                     </ul>
                                 </div>
-                            @endif
-
+                            @endif -->
                             <div class="form-group row mb-3">
                                 <label for="name" class="col-sm-2 form-label">Name</label>
                                 <div class="col-sm-10">
@@ -47,7 +44,6 @@
                                     @enderror
                                 </div>
                             </div>
-
                             <div class="form-group row mb-3">
                                 <label for="email" class="col-sm-2 form-label">Email</label>
                                 <div class="col-sm-10">
@@ -58,7 +54,6 @@
                                     @enderror
                                 </div>
                             </div>
-
                             <div class="form-group row mb-3">
                                 <label for="username" class="col-sm-2 form-label">Username</label>
                                 <div class="col-sm-10">
@@ -69,39 +64,27 @@
                                     @enderror
                                 </div>
                             </div>
-
-                            <div class="form-group row mb-3">
-                            <label for="kodeunit" class="col-sm-2 form-label">Kode Unit</label>
-                            <div class="col-sm-10">
-                                <select class="form-select @error('kodeunit') is-invalid @enderror" 
-                                        id="kodeunit" name="kodeunit" required>
+                            <div class="form-group">
+                                <label for="kodeunit">Kode Unit</label>
+                                <select name="kodeunit" id="kodeunit" class="form-control" required>
                                     <option value="">Pilih Kode Unit</option>
-                                    @foreach($units as $unit)
-                                        <option value="{{ $unit->kodeunit }}" 
-                                                data-namaunit="{{ $unit->namaunit }}"
-                                                {{ old('kodeunit', auth()->user()->kodeunit) == $unit->kodeunit ? 'selected' : '' }}>
-                                            {{ $unit->kodeunit }} 
+                                    @foreach ($unitArr as $unit)
+                                        <option value="{{ $unit->kodeunit }}" {{ $user->kodeunit == $unit->kodeunit ? 'selected' : '' }}>
+                                            {{ $unit->kodeunit }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('kodeunit')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
                             </div>
-                        </div>
-
-                        <div class="form-group row mb-3">
-                            <label for="namaunit" class="col-sm-2 form-label">Nama Unit</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control @error('namaunit') is-invalid @enderror" 
-                                    id="namaunit" name="namaunit"  required
-                                    value="{{ old('namaunit', auth()->user()->namaunit) }}">
-                                @error('namaunit')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            <div class="form-group row mb-3">
+                                <label for="namaunit" class="col-sm-2 form-label">Nama Unit</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control @error('namaunit') is-invalid @enderror" 
+                                        id="namaunit" name="namaunit" required value="{{ old('namaunit', auth()->user()->namaunit) }}">
+                                    @error('namaunit')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
-                        </div>
-
                             <div class="form-group row">
                                 <div class="ms-auto col-sm-10">
                                     <button type="submit" class="btn btn-success">Update Profile</button>
@@ -113,7 +96,6 @@
             </div>
         </div>
     </div>
-
     <div class="col-12 col-lg-5 col-xl-4">
         <div class="box box-widget widget-user">
             <div class="box-body d-flex p-0">
@@ -149,12 +131,11 @@
         </div>
     </div>
 </div>
-
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
-
-@push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+
 <script>
      toastr.options = {
         "closeButton": true,
@@ -162,138 +143,60 @@
         "positionClass": "toast-top-right",
         "timeOut": "3000"
     };
-    document.addEventListener('DOMContentLoaded', function() {
     
-    // Initialize Choices.js
-    const kodeunitSelect = new Choices('#kodeunit', {
-        searchEnabled: true,
-        removeItemButton: false,
-        placeholder: true,
-        placeholderValue: 'Pilih Kode Unit'
-    });
+    document.getElementById('kodeunit').addEventListener('change', function() {
+    var kodeunit = this.value;
 
-    // Event listener untuk perubahan kodeunit
-    document.getElementById('kodeunit').addEventListener('change', function(event) {
-        handleKodeUnitChange(event.target.value, '#namaunit');
-    });
+    // Mengambil namaunit berdasarkan kodeunit
+    if (kodeunit) {
+        // Memanggil API untuk mendapatkan namaunit berdasarkan kodeunit yang dipilih
+        fetch(`{{ url('/api/get-nama-unit') }}/${kodeunit}`)
+            .then(response => response.json())
+            .then(data => {
+                var namaunitInput = document.getElementById('namaunit');
+                
+                // Reset nilai input namaunit
+                namaunitInput.value = ''; // Resetkan inputan
 
-    // Function untuk handle perubahan kodeunit
-    function handleKodeUnitChange(kodeUnit, targetInput) {
-        if (!kodeUnit) {
-            $(targetInput).val('');
-            return;
-        }
-
-        $.ajax({
-            url: '/api/get-nama-unit',
-            method: 'GET',
-            data: { kode_unit: kodeUnit },
-            success: function(response) {
-                $(targetInput).val(response.nama_unit || '');
-            },
-            error: function() {
-                toastr.error('Gagal mengambil data nama unit');
-                $(targetInput).val('');
-            }
-        });
-    }
-
-    // Set initial value jika ada
-    const initialKodeUnit = '{{ old('kodeunit', auth()->user()->kodeunit) }}';
-    if (initialKodeUnit) {
-        kodeunitSelect.setChoiceByValue(initialKodeUnit);
-        handleKodeUnitChange(initialKodeUnit, '#namaunit');
-    }
-
-    // Form submission
-    const form = document.getElementById('profileForm');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const kodeunit = document.getElementById('kodeunit').value;
-            const namaunit = document.getElementById('namaunit').value;
-            
-            if (!kodeunit || !namaunit) {
-                e.preventDefault();
-                toastr.error('Silakan pilih Kode Unit');
-                return;
-            }
-
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
-            }
-        });
+                // Periksa apakah data yang diterima ada dan namaunitnya ada
+                if (data && data.namaunit) {
+                    // Isi input dengan namaunit yang diterima
+                    namaunitInput.value = data.namaunit;
+                } else {
+                    // Jika namaunit tidak ditemukan, beri pesan atau kosongkan input
+                    namaunitInput.value = "Nama Unit tidak ditemukan";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Menangani error jika fetch gagal
+                var namaunitInput = document.getElementById('namaunit');
+                namaunitInput.value = "Terjadi kesalahan, coba lagi.";
+            });
     }
 });
 
-function fetchkodeunit() {
-    $.ajax({
-        url: '/api/get-nama-unit',
-        method: 'GET',
-        success: function (response) {
-            if (response && Array.isArray(response)) {
-                const choices = response.map(item => ({
-                    value: item.kodeunit,
-                    label: item.kodeunit
-                }));
-
-                editChoices.clearChoices();
-                editChoices.setChoices(choices);
-            }
-        },
-        error: function (xhr, status, error) {
-            toastr.error('Gagal mengambil data kode gedung');
-            console.error('Error fetching kode gedung:', error);
-        }
-        });
-    }
-
-    fetchkodeunit();
- // Event listener for kodeunit change
- document.getElementById('kodeunit').addEventListener('change', function(event) {
-        handlekodeunitChange(event.target.value, '#namaunit');
-    });
-
-    document.getElementById('kodeunit').addEventListener('change', function(event) {
-    const kodeunit = event.target.value;
+// Mengisi namaunit saat halaman pertama kali dimuat jika kodeunit sudah terpilih
+document.addEventListener('DOMContentLoaded', function() {
+    toastr.success('Profile updated successfully!', 'Success');
+    
+    var kodeunit = document.getElementById('kodeunit').value;
     if (kodeunit) {
-        $.ajax({
-            url: '/api/get-nama-unit',
-            method: 'GET',
-            data: { kodeunit: kodeunit },
-            success: function (response) {
-                $('#namaunit').val(response.namaunit || '');
-            },
-            error: function () {
-                toastr.error('Gagal mengambil data nama gedung');
-                $('#namaunit').val('');
-            }
-        });
-        } else {
-            $('#namaunit').val('');
-        }
-    });
-
-    function handlekodeunitChange(kodeunit, targetInput) {
-        if (!kodeunit) {
-            $(targetInput).val('');
-        return;
-        }  $.ajax({
-                url: '/api/get-nama-unit',
-                method: 'GET',
-                data: { kode_gedung: kodeunit },
-                success: function (response) {
-                    $(targetInput).val(response.nama_gedung || '');
-                },
-                error: function () {
-                    toastr.error('Gagal mengambil data nama gedung');
-                    $(targetInput).val('');
+        fetch(`{{ url('/api/get-nama-unit') }}/${kodeunit}`)
+            .then(response => response.json())
+            .then(data => {
+                var namaunitInput = document.getElementById('namaunit');
+                if (data && data.namaunit) {
+                    namaunitInput.value = data.namaunit;
                 }
-            });
+            })
+            .catch(error => console.error('Error:', error));
     }
+});
+
+
 </script>
-@endpush
+
 
 </section>
 @endsection

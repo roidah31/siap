@@ -10,7 +10,7 @@ use App\Http\Controllers\ProfileController;
 Route::get('/gedung', [GedungController::class, 'index'])->name('gedung');
 Route::get('/get-nama-gedung', [GedungController::class, 'getNamaGedung']);
 Route::get('/get-kode-gedung', [GedungController::class, 'getKodeGedung']);
-Route::get('/get-nama-unit', [ProfileController::class, 'getNamaUnit']);
+Route::get('/get-nama-unit/{kodeunit}', [ProfileController::class, 'getNamaUnit']);
 Route::get('/get-kode-unit', [GedungController::class, 'getKodeUnit']);
 
 Route::get('/get-units', [UnitController::class, 'getUnits']);
