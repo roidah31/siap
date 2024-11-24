@@ -11,22 +11,22 @@ Route::get('/', function () {
 Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-
 Route::get('/getLoginMitra/{username_login}', [LoginController::class,'login']);
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login'])->name('login.post');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('dashboard',[App\Http\Controllers\HomeController::class, 'index'])->name('dashboard');
-//Route::get('dashboard', [LoginController::class, 'dashboard'])->name('dashboard')->middleware('auth');
+
 
 Route::middleware(['auth'])->group(function () {
-   
-});
+//Profile section
 Route::get('/profile/ubah', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.ubah');
 Route::POST('/profile/update', [App\Http\Controllers\ProfileController::class,'update'])->name('profile.update');
 Route::get('/profile/password', [App\Http\Controllers\ProfileController::class, 'changePassword'])->name('profile.password');
 Route::put('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
+
+//Process Transaction
 Route::post('/barangubah', [App\Http\Controllers\BarangController::class, 'update'])->name('barangubah');
 Route::controller(App\Http\Controllers\BarangController::class)->group(function() {
     Route::get('/barang/lihat', 'index')->name('barang.index');
@@ -68,3 +68,5 @@ Route::controller(App\Http\Controllers\AssetController::class)->group(function()
     Route::post('/aset/delete/{id}','destroy')->name('aset.destroy');
     Route::put('/aset/update', 'update')->name('aset.update');
 });
+});
+

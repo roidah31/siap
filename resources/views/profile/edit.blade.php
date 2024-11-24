@@ -16,7 +16,7 @@
                         <form class="form-horizontal form-element col-12" method="POST" action="{{ URL('/profile/update') }}" id="profileForm">
                             @csrf
                             @method('POST')
-                            <!-- {{-- Success Message --}}
+                            {{-- Success Message --}}
                             @if(session('success') || session('status') === 'profile-updated')
                                 <div class="alert alert-success alert-dismissible fade show">
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -33,7 +33,7 @@
                                         @endforeach
                                     </ul>
                                 </div>
-                            @endif -->
+                            @endif
                             <div class="form-group row mb-3">
                                 <label for="name" class="col-sm-2 form-label">Name</label>
                                 <div class="col-sm-10">
@@ -64,16 +64,21 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="kodeunit">Kode Unit</label>
-                                <select name="kodeunit" id="kodeunit" class="form-control" required>
-                                    <option value="">Pilih Kode Unit</option>
-                                    @foreach ($unitArr as $unit)
-                                        <option value="{{ $unit->kodeunit }}" {{ $user->kodeunit == $unit->kodeunit ? 'selected' : '' }}>
-                                            {{ $unit->kodeunit }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                            <div class="form-group row mb-3">
+                                <label for="kodeunit" class="col-sm-2 form-label">Kode Unit</label>
+                                <div class="col-sm-10">
+                                    <select name="kodeunit" id="kodeunit" class="form-control" required>
+                                        <option value="">Pilih Kode Unit</option>
+                                        @foreach ($unitArr as $unit)
+                                            <option value="{{ $unit->kodeunit }}" {{ $user->kodeunit == $unit->kodeunit ? 'selected' : '' }}>
+                                                {{ $unit->kodeunit }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('kodeunit')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
                             <div class="form-group row mb-3">
                                 <label for="namaunit" class="col-sm-2 form-label">Nama Unit</label>
@@ -137,7 +142,7 @@
 
 
 <script>
-     toastr.options = {
+      toastr.options = {
         "closeButton": true,
         "progressBar": true,
         "positionClass": "toast-top-right",
@@ -178,7 +183,8 @@
 
 // Mengisi namaunit saat halaman pertama kali dimuat jika kodeunit sudah terpilih
 document.addEventListener('DOMContentLoaded', function() {
-    toastr.success('Profile updated successfully!', 'Success');
+
+   
     
     var kodeunit = document.getElementById('kodeunit').value;
     if (kodeunit) {

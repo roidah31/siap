@@ -26,11 +26,7 @@
         <p class="text-light mt-3">Harap menunggu...</p>
     </div>
 </div>
-@if(session('success'))
-    <script>
-        toastr.success("{{ session('success') }}", 'success');
-    </script>
-@endif
+
 <div class="wrapper">
   <div id="loader"></div>	
     @include('layouts.partials.header')
@@ -45,12 +41,11 @@
   </div>
   <!-- /.content-wrapper -->
   @include('layouts.partials.footer') 
-  <!--('layouts.partials.control-sidebar') -->  
+
   <!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>  
 </div>	
-  <!-- ('layouts.partials.side-panel') -->	
-	<!-- ('layouts.partials.chatbox') -->	
+
 	<script src="{{asset('assets/js/vendors.min.js')}}"></script>
 	<!-- EduAdmin App -->
 	<script src="{{asset('assets/js/template.js')}}"></script>
@@ -58,8 +53,7 @@
 	<script src="{{asset('assets/js/pages/data-table.js')}}"></script>
 
   <script src="{{asset('assets/vendor_components/jquery-toast-plugin-master/src/jquery.toast.js')}}"></script>
-  <script src="{{asset('assets/js/pages/toastr.js')}}"></script>
-  <script src="{{asset('assets/js/pages/notification.js')}}"></script>
+
 
  <script>
     // Function to show the loading overlay
@@ -75,14 +69,7 @@
       showLoading();
  });
 
-//Toastr
-// toastr.options = {
-//         "closeButton": true,
-//         "progressBar": true,
-//         "positionClass": "toast-top-right",
-//         "timeOut": "5000", // durasi 5 detik
-//         "extendedTimeOut": "1000" // waktu tambahan saat mouse hover
-//     };
+
  </script>
 </body>
 </html>
