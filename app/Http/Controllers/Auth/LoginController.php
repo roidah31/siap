@@ -12,7 +12,7 @@ use Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Psgdbuser;
 use App\Models\Mysqluser;
-
+use Session;
 class LoginController extends Controller
 {
     /*
@@ -110,9 +110,7 @@ class LoginController extends Controller
                 $newUser->namaunit= $getUsr->namaunit;
                 $newUser->save();
                 Auth::login($newUser); // Login melalui Laravel Auth
-                return redirect('/home');
-
-           
+                return redirect('/home');           
 		}
 
 		// return response()->json(['message' => 'Login gagal, username atau password salah'], 401);
@@ -120,48 +118,25 @@ class LoginController extends Controller
 	}
 
 
-	/*public function login(Request $request)
-	{
-    // Validate user input
-    $request->validate([
-        'username' => 'required',  // Remove `username` validation rule
-        'password' => 'required',
-    ]);
-
-    $username = $request->input('username');
-    $password = $request->input('password');
-
-    // Check if user exists in PostgreSQL
-    $pgsqlUser = DB::connection('mitra')->table('gate.sc_user')->where('username', $username)->first();
-    
-    if ($pgsqlUser && password_verify($password, $pgsqlUser->password)) {
-        // Check if the user already exists in MySQL
-        $Mysqluser = User::where('username', $username)->first();
-        
-        if (!$Mysqluser) {
-            // Create the user in MySQL if they don't exist
-            User::create([
-                'username' => $pgsqlUser->username,
-                'password' => bcrypt($pgsqlUser->password),  // Encrypt password when storing in MySQL
-            ]);
-        }
-
-        // Log in the user using Laravel's Auth
-        if (Auth::attempt(['username' => $username, 'password' => $password])) {
-            // Redirect to dashboard if login is successful
-            return redirect()->route('dashboard');
-        }
-    }
-
-    return back()->withErrors([
-        'username' => 'The provided credentials do not match our records.',
-    ]);
-	}*/
-
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::logout();
-        return redirect()->route('login');
+        // Auth::logout();
+        // return redirect()->route('login');
+
+        // Hapus semua session
+        Session::flush();        
+        // Hapus authentication
+        Auth::logout();        
+        // Invalidate session
+        $request->session()->invalidate();        
+        // Regenerate CSRF token
+        $request->session()->regenerateToken();        
+        // Hapus semua cookies
+        $cookies = $request->cookie();
+        foreach($cookies as $cookie => $value) {
+            \Cookie::forget($cookie);
+        }        
+        return redirect()->route('login')->with('message', 'Anda telah berhasil logout');
     }
 
     public function dashboard()

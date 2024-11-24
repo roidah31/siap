@@ -495,8 +495,13 @@
                     </li>
                     <li>
                       <div class="d-grid px-2 pt-2 pb-1">
-                        <a class="btn btn-sm btn-danger d-flex" href="auth-login-cover.html" target="_blank">
-                          <small class="align-middle">Logout</small>
+                        <a class="btn btn-sm btn-danger d-flex" href="" target="_blank">
+                          <small class="align-middle">
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                                  @csrf
+                                  <button type="submit">Keluar</button>
+                              </form>
+                            </small>
                           <i class="ti ti-logout ms-2 ti-14px"></i>
                         </a>
                       </div>

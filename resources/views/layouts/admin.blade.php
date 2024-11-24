@@ -4,6 +4,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="siap-unipa">
@@ -69,7 +70,34 @@
       showLoading();
  });
 
+// Logout process
+let idleTime = 0;
+        const idleInterval = setInterval(timerIncrement, 60000); // 1 menit
 
+        // Reset timer pada mouse movement, keypress, scroll
+        document.addEventListener('mousemove', resetTimer);
+        document.addEventListener('keypress', resetTimer);
+        document.addEventListener('scroll', resetTimer);
+        
+        function resetTimer() {
+            idleTime = 0;
+        }
+
+        function timerIncrement() {
+            idleTime = idleTime + 1;
+            if (idleTime >= 1) { // Jika idle 1 menit
+                // Kirim request logout
+                fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                }).then(() => {
+                    window.location.href = '/login';
+                });
+            }
+        }
  </script>
 </body>
 </html>

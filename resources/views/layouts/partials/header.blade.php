@@ -119,7 +119,12 @@
 				 <a class="dropdown-item" href="#"><i class="ti-wallet text-muted me-2"></i> My Wallet</a>
 				 <a class="dropdown-item" href="#"><i class="ti-settings text-muted me-2"></i> Settings</a>
 				 <div class="dropdown-divider"></div>
-				 <a class="dropdown-item" href="#"><i class="ti-lock text-muted me-2"></i> Logout</a>
+				
+				 				<form id="logout-form" action="{{ route('logout') }}" method="POST">
+                                  @csrf
+                                  <button  type="submit" class="btn btn-info">Keluar</a>
+                              </form>
+				   
               </li>
             </ul>
           </li>	
