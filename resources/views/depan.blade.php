@@ -35,7 +35,7 @@
 								<form>
 									  <div class="row">
 										<div class="col-12 text-center">
-										  <a href="mitra.unipasby.ac.id" type="submit" class="btn btn-info mt-10">SIGN IN MITRA</a>
+										  <a href="https://mitra.unipasby.ac.id" type="submit" class="btn btn-info mt-10">SIGN IN MITRA</a>
 										</div>
 										<!-- /.col -->
 									  </div>
