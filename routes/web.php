@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 Route::get('/', function () {
     return view('home');
 });
+Route::get('/depan', [App\Http\Controllers\DepanController::class, 'home'])->name('depan');
 
 Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

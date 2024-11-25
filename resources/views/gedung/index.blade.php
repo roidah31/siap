@@ -16,6 +16,7 @@
        <tr>         
          <th>Kode gedung</th>
          <th>Nama gedung</th>
+         <th>Image</th>
          <th>aksi</th>
         </tr>
      </thead>
@@ -24,6 +25,7 @@
        <tr>       
          <td>{{$r->kode_gedung}}</td>
          <td>{{$r->nama_gedung}}</td>
+         <td>{{$r->imagegedung }}</td>
          <td><button type="button" class="btn btn-info edit-button" 
                 data-item='@json($r)'>Edit
               </button>
@@ -36,6 +38,7 @@
        <tr>         
          <th>Kode gedung</th>
          <th>Nama gedung</th>
+         <th>Image</th>
          <th>Aksi</th>        
        </tr>
      </tfoot>

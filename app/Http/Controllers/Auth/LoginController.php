@@ -52,6 +52,18 @@ class LoginController extends Controller
 	
 	public function login(Request $request,$username_login)
 	{
+
+          //secure with secret code and convert back from URL-safe to regular base64
+          /*$secret_key = 'e2f8a4d6c3b9n7m5k1j4h8g2p6v9w3t';
+          $base64 = strtr($username_login, '-_.', '+/=');
+          $username_login = openssl_decrypt(
+              base64_decode($base64),
+              'AES-128-ECB',
+              $secret_key,
+              OPENSSL_RAW_DATA
+          );*/
+  
+        //mulai login process 
 		$credentials = $request->only('username', 'password');
 		// Cek di MySQL terlebih dahulu
 		$user = Mysqluser::where('username','=',$username_login)->first();

@@ -72,7 +72,7 @@
 
 // Logout process
 let idleTime = 0;
-        const idleInterval = setInterval(timerIncrement, 60000); // 1 menit
+        const idleInterval = setInterval(timerIncrement, 1200000); // 1 menit
 
         // Reset timer pada mouse movement, keypress, scroll
         document.addEventListener('mousemove', resetTimer);
@@ -94,7 +94,7 @@ let idleTime = 0;
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                 }).then(() => {
-                    window.location.href = '/login';
+                    window.location.href = '/depan';
                 });
             }
         }

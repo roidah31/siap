@@ -168,8 +168,8 @@ $(document).ready(function() {
                     label: item.kode_gedung
                 }));
 
-                editChoices.clearChoices();
-                editChoices.setChoices(choices);
+                // editChoices.clearChoices();
+                // editChoices.setChoices(choices);
             }
         },
         error: function (xhr, status, error) {
