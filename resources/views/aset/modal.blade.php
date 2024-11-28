@@ -18,7 +18,7 @@
 }
 
 /* Custom styling untuk Choices.js */
-.choices__inner {
+/* .choices__inner {
     padding: 4px 8px;
     min-height: 38px;
     border-radius: 4px;
@@ -26,11 +26,47 @@
 
 .choices__input {
     background-color: transparent;
+} */
+
+/* .choices__list--dropdown {
+    z-index: 1056;
+} */
+
+ /* Custom Toastr Styling */
+.toast-success {
+    background-color: #198754 !important; /* Bootstrap success green */
 }
 
-.choices__list--dropdown {
-    z-index: 1056;
+.toast-error {
+    background-color: #dc3545 !important; /* Bootstrap danger red */
 }
+
+.toast-info {
+    background-color: #0dcaf0 !important; /* Bootstrap info blue */
+}
+
+.toast-warning {
+    background-color: #ffc107 !important; /* Bootstrap warning yellow */
+    color: #000 !important; /* Dark text for better visibility on yellow */
+}
+
+/* Progress bar colors */
+.toast-success .toast-progress {
+    background-color: #146c43;
+}
+
+.toast-error .toast-progress {
+    background-color: #b02a37;
+}
+
+.toast-info .toast-progress {
+    background-color: #0aa2c0;
+}
+
+.toast-warning .toast-progress {
+    background-color: #cc9a06;
+}
+
 </style>
 
 <!-- Modal Form -->
@@ -42,11 +78,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                  <form id="asetForm" action="{{URL('/aset/store')}}" method="POST">
+                  <form id="asetForm" action="{{Route('aset.store')}}" method="POST">
                     @csrf
                     <input type="hidden" id="aset_id" name="id">
                     <input type="hidden" id="form_type" name="form_type" value="add">
-                    
+                    <input type="hidden" class="form-control" id="namapenginput" name="namapenginput" value="{{ AUTH::user()->username}}">
+                    <input type="hidden" class="form-control" id="kdunitpenginput" name="kdunitpenginput" value="{{ AUTH::user()->kodeunit}}">
                     <!-- Nama Barang -->
                     <div class="mb-3">
                         <div class="form-group">
@@ -54,7 +91,7 @@
                             <select class="form-control" id="nama_barang" name="nama_barang" required>
                                 <option value="">Pilih Barang</option>
                                 @foreach($brg as $r)
-                                    <option value="{{ $r->id }}">{{ $r->namabarang }}</option>
+                                    <option value="{{ $r->namabarang }}">{{ $r->namabarang }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -106,7 +143,6 @@
                                 <option value="3">3</option>
                             </select>
                         </div>
-
                         <!-- Unit -->
                         <div class="col-md-4 mb-3">
                             <label for="unit" class="form-label">Unit</label>
@@ -115,7 +151,6 @@
                             </select>
                         </div>
                     </div>
-
                     <!-- Ruang -->
                     <div class="mb-3">
                         <label for="ruang" class="form-label">Ruang</label>
@@ -163,7 +198,6 @@
                             <input type="number" class="form-control" id="masahidup" name="masahidup" required>
                         </div>
                     </div>
-
                     <!-- Penghapusan dan Perbaikan -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -175,7 +209,6 @@
                             <input type="date" class="form-control" id="perbaikan" name="perbaikan">
                         </div>
                     </div>
-
                     <!-- Perbaikan Ke -->
                     <div class="mb-3">
                         <label for="perbaikanke" class="form-label">Perbaikan Ke-</label>
@@ -204,18 +237,20 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Form -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
 
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
 
 <script>
 $(document).ready(function () {
@@ -223,20 +258,30 @@ $(document).ready(function () {
     let formChanged = false;
     let initialFormData = '';
     
-    // Fields yang menggunakan Choices.js
+    // Configure Toastr options
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    };
+    
     const choicesFields = [
-        'nama_barang',
-        'unit_mitra',
-        'kode_gedung',
-        'lantai',
-        'unit',
-        'semester',
-        'tahun',
-        'satuan',
-        'status'
+        'nama_barang', 'unit_mitra', 'kode_gedung', 'lantai', 
+        'unit', 'semester', 'tahun', 'satuan', 'status'
     ];
 
-    // Initialize Choices.js untuk semua fields
     function initializeChoices() {
         choicesFields.forEach(field => {
             const element = document.getElementById(field);
@@ -255,68 +300,136 @@ $(document).ready(function () {
                 });
             }
         });
+        setupDependentDropdowns();
     }
 
-    // Function untuk set nilai Choices.js
-    function setChoicesValue(field, value) {
-        if (choicesInstances[field] && value) {
-            try {
-                choicesInstances[field].setChoiceByValue(value);
-            } catch (error) {
-                console.warn(`Could not set value for ${field}:`, error);
-            }
+    function setupDependentDropdowns() {
+        if (choicesInstances.kode_gedung) {
+            choicesInstances.kode_gedung.passedElement.element.addEventListener(
+                'change',
+                function(event) {
+                    const kodeGedung = event.target.value;
+                    if (kodeGedung) {
+                        fetchLantai(kodeGedung);
+                    } else {
+                        resetDropdown('lantai');
+                        resetDropdown('unit');
+                    }
+                }
+            );
+        }
+
+        if (choicesInstances.lantai) {
+            choicesInstances.lantai.passedElement.element.addEventListener(
+                'change',
+                function(event) {
+                    const lantai = event.target.value;
+                    const kodeGedung = document.getElementById('kode_gedung').value;
+                    if (lantai && kodeGedung) {
+                        fetchUnit(kodeGedung, lantai);
+                    } else {
+                        resetDropdown('unit');
+                    }
+                }
+            );
         }
     }
 
-    // Function untuk format tanggal
-    function formatDate(dateString) {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toISOString().split('T')[0];
-    }
-
-    // Function untuk cek perubahan form
-    function hasFormChanged() {
-        const currentFormData = $('#asetForm').serialize();
-        return currentFormData !== initialFormData;
-    }
-
-    // Function untuk reset form
-    function resetForm() {
-        $('#asetForm')[0].reset();
-        $('#aset_id').val('');
-        $('#form_type').val('add');
-        $('#modalTitle').text('Tambah Data Aset');
-        $('#asetForm').removeClass('was-validated');
-        
-        // Reset semua Choices.js instances
-        choicesFields.forEach(field => {
-            if (choicesInstances[field]) {
-                choicesInstances[field].destroy();
+    function fetchLantai(kodeGedung) {
+        $.ajax({
+            url: '{{URL('/get-lantai')}}',
+            method: 'GET',
+            data: { kode_gedung: kodeGedung },
+            success: function(response) {
+                const options = response.map(item => ({
+                    value: item.lantai,
+                    label: `Lantai ${item.lantai}`
+                }));
+                updateChoicesDropdown('lantai', options);
+                resetDropdown('unit');
+            },
+            error: function(xhr) {
+                console.error('Error loading lantai:', xhr);
+                toastr.error('Gagal memuat data lantai');
             }
         });
-        initializeChoices();
-        
-        // Clear unit dropdown
-        $('#unit').html('<option value="">Pilih Unit</option>');
-        if (choicesInstances.unit) {
-            choicesInstances.unit.destroy();
-            choicesInstances.unit = new Choices('#unit', {
-                searchEnabled: true,
-                itemSelectText: '',
-                removeItemButton: false,
-                shouldSort: false,
-            });
-        }
-
-        formChanged = false;
-        initialFormData = $('#asetForm').serialize();
     }
 
-    // Function untuk load units berdasarkan gedung dan lantai
+    function fetchUnit(kodeGedung, lantai) {
+        $.ajax({
+            url: '{{URL('/get-units')}}',
+            method: 'GET',
+            data: { 
+                kode_gedung: kodeGedung,
+                lantai: lantai 
+            },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                const options = response.map(item => ({
+                    value: item.nama_unit,
+                    label: item.nama_unit
+                }));
+                updateChoicesDropdown('unit', options);
+            },
+            error: function(xhr) {
+                console.error('Error loading units:', xhr);
+                toastr.error('Gagal memuat data unit');
+            }
+        });
+    }
+
+    function updateChoicesDropdown(field, options) {
+        if (choicesInstances[field]) {
+            choicesInstances[field].destroy();
+        }
+
+        const element = document.getElementById(field);
+        if (element) {
+            element.innerHTML = '<option value="">Pilih</option>';
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option.value;
+                optionElement.textContent = option.label;
+                element.appendChild(optionElement);
+            });
+
+            choicesInstances[field] = new Choices(element, {
+                searchEnabled: true,
+                itemSelectText: '',
+                removeItemButton: true,
+                shouldSort: false,
+                classNames: {
+                    containerInner: 'form-select'
+                }
+            });
+        }
+    }
+
+    function resetDropdown(field) {
+        if (choicesInstances[field]) {
+            choicesInstances[field].destroy();
+        }
+
+        const element = document.getElementById(field);
+        if (element) {
+            element.innerHTML = '<option value="">Pilih</option>';
+            choicesInstances[field] = new Choices(element, {
+                searchEnabled: true,
+                itemSelectText: '',
+                removeItemButton: true,
+                shouldSort: false,
+                classNames: {
+                    containerInner: 'form-select'
+                }
+            });
+        }
+    }
+
     function loadUnits(kodeGedung, lantai, selectedUnit = null) {
         $.ajax({
-            url: '/api/get-units',
+            url: "{{URL('/api/get-units')}}",
             method: 'GET',
             data: { kode_gedung: kodeGedung, lantai: lantai },
             success: function(response) {
@@ -343,38 +456,72 @@ $(document).ready(function () {
             },
             error: function(xhr) {
                 console.error('Error loading units:', xhr);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Gagal memuat data unit'
-                });
+                toastr.error('Gagal memuat data unit');
             }
         });
     }
 
-    // Handle Add Button Click
+    // Handle edit mode
+    function setChoicesValue(field, value) {
+        if (choicesInstances[field] && value) {
+            try {
+                choicesInstances[field].setChoiceByValue(value);
+            } catch (error) {
+                console.warn(`Could not set value for ${field}:`, error);
+            }
+        }
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0];
+    }
+
+    function resetForm() {
+        $('#asetForm')[0].reset();
+        $('#aset_id').val('');
+        $('#form_type').val('add');
+        $('#modalTitle').text('Tambah Data Aset');
+        $('#asetForm').removeClass('was-validated');
+        
+        choicesFields.forEach(field => {
+            if (choicesInstances[field]) {
+                choicesInstances[field].destroy();
+            }
+        });
+        initializeChoices();
+        
+        $('#unit').html('<option value="">Pilih Unit</option>');
+        if (choicesInstances.unit) {
+            choicesInstances.unit.destroy();
+            choicesInstances.unit = new Choices('#unit', {
+                searchEnabled: true,
+                itemSelectText: '',
+                removeItemButton: false,
+                shouldSort: false,
+            });
+        }
+
+        formChanged = false;
+        initialFormData = $('#asetForm').serialize();
+    }
+
+    // Button Handlers
     $('.btn-add').on('click', function() {
         resetForm();
         $('#formModal').modal('show');
     });
 
-    // Handle Edit Button Click
     $(document).on('click', '.edit-button', function() {
+        const data = $(this).data('item');
         try {
-            const data = $(this).data('item');
-            
-            // Reset form terlebih dahulu
-            $('#asetForm')[0].reset();
-            
-            // Set form type dan ID
             $('#form_type').val('edit');
             $('#aset_id').val(data.id);
             $('#modalTitle').text('Edit Data Aset');
 
-            // Initialize Choices.js
             initializeChoices();
 
-            // Set values untuk regular inputs
             $('#no_serial').val(data.no_serial);
             $('#fungsi_barang').val(data.fungsi_barang);
             $('#ruang').val(data.ruang);
@@ -383,7 +530,6 @@ $(document).ready(function () {
             $('#perbaikan').val(formatDate(data.perbaikan));
             $('#perbaikanke').val(data.perbaikanke);
 
-            // Set values untuk select options dengan delay kecil
             setTimeout(() => {
                 setChoicesValue('nama_barang', data.nama_barang);
                 setChoicesValue('unit_mitra', data.unit_mitra);
@@ -394,28 +540,21 @@ $(document).ready(function () {
                 setChoicesValue('satuan', data.satuan);
                 setChoicesValue('status', data.status.toString());
 
-                // Load units setelah gedung dan lantai di-set
                 if (data.kode_gedung && data.lantai) {
                     loadUnits(data.kode_gedung, data.lantai, data.unit);
                 }
             }, 100);
 
-            // Simpan state awal form setelah semua nilai di-set
             initialFormData = $('#asetForm').serialize();
             formChanged = false;
 
             $('#formModal').modal('show');
         } catch (error) {
             console.error('Error in edit button handler:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Terjadi kesalahan saat memuat data'
-            });
+            toastr.error('Terjadi kesalahan saat memuat data');
         }
     });
 
-    // Handle Save Button Click
     $('#btnSave').on('click', function() {
         const form = $('#asetForm')[0];
         if (!form.checkValidity()) {
@@ -425,61 +564,40 @@ $(document).ready(function () {
 
         const formData = new FormData(form);
         const isEdit = $('#form_type').val() === 'edit';
-        const url = isEdit ? '/aset/update' : '/aset/store';
+        const url = isEdit ? '{{URL('/aset/update')}}' : '{{URL('/aset/store')}}';
 
-        // Tambahkan method PUT untuk edit
         if (isEdit) {
             formData.append('_method', 'PUT');
         }
 
-        Swal.fire({
-            title: 'Konfirmasi',
-            text: isEdit ? 'Apakah Anda yakin ingin mengupdate data ini?' : 'Apakah Anda yakin ingin menyimpan data ini?',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Simpan',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    method: 'POST', // Tetap POST karena kita menggunakan FormData dengan _method
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    beforeSend: function() {
-                        $('#btnSave').prop('disabled', true)
-                            .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...');
-                    },
-                    success: function(response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: isEdit ? 'Data berhasil diupdate!' : 'Data berhasil ditambahkan!'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    },
-                    error: function(xhr) {
-                        console.error('Save error:', xhr);
-                        const errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan pada server';
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Gagal menyimpan data: ' + errorMessage
-                        });
-                        $('#btnSave').prop('disabled', false)
-                            .html('<i class="fas fa-save"></i> Simpan');
-                    }
-                });
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function() {
+                $('#btnSave').prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...');
+            },
+            success: function(response) {
+                toastr.success(isEdit ? 'Data berhasil diupdate!' : 'Data berhasil ditambahkan!');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            },
+            error: function(xhr) {
+                console.error('Save error:', xhr);
+                const errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan pada server';
+                toastr.error('Gagal menyimpan data: ' + errorMessage);
+                $('#btnSave').prop('disabled', false)
+                    .html('<i class="fas fa-save"></i> Simpan');
             }
         });
     });
 
-    // Event handlers lainnya tetap sama
-    // ...
-
-    // Initialize saat halaman load
+    // Initialize on page load
     initializeChoices();
 });
+
 </script>

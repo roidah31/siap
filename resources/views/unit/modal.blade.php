@@ -159,7 +159,7 @@ $(document).ready(function() {
 });
     function fetchKodeGedung() {
     $.ajax({
-        url: '/api/get-kode-gedung',
+        url: '{{URL('/api/get-kode-gedung')}}',
         method: 'GET',
         success: function (response) {
             if (response && Array.isArray(response)) {
@@ -168,8 +168,8 @@ $(document).ready(function() {
                     label: item.kode_gedung
                 }));
 
-                // editChoices.clearChoices();
-                // editChoices.setChoices(choices);
+                editChoices.clearChoices();
+                editChoices.setChoices(choices);
             }
         },
         error: function (xhr, status, error) {
@@ -190,7 +190,7 @@ $(document).ready(function() {
     const kodeGedung = event.target.value;
     if (kodeGedung) {
         $.ajax({
-            url: '/api/get-nama-gedung',
+            url: '{{URL('/api/get-nama-gedung')}}',
             method: 'GET',
             data: { kode_gedung: kodeGedung },
             success: function (response) {
@@ -211,7 +211,7 @@ $(document).ready(function() {
             $(targetInput).val('');
         return;
         }  $.ajax({
-                url: '/api/get-nama-gedung',
+                url: '{{URL('/api/get-nama-gedung')}}',
                 method: 'GET',
                 data: { kode_gedung: kodeGedung },
                 success: function (response) {
@@ -311,7 +311,7 @@ function submitEditForm() {
     }
 
     $.ajax({
-        url: '/unit/update',
+        url: '{{URL('/unit/update')}}',
         method: 'POST',
         data: formData,
         success: function(response) {
@@ -334,7 +334,7 @@ function submitDeleteForm() {
         var id = $('#delete-id').val();
 
         $.ajax({
-            url: `/unit/hapus/${id}`,
+            url: `{{URL('/unit/hapus/${id}')}}`,
             method: "POST",
             data:  {
                 _token: $('meta[name="csrf-token"]').attr('content') // Include CSRF token

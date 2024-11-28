@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\gedung;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use DB;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+
 class GedungController extends Controller
 {
     /**
@@ -13,9 +16,7 @@ class GedungController extends Controller
      */
    public function index()
     {
-        /*$gedungs = gedung::all();       
-        return response()->json($gedungs);*/
-		//return view('gedung.index',['ged'=>gedung::all]);
+     
 		
 		$ged = gedung::all();
 		return view('gedung.index',compact('ged'));
@@ -27,35 +28,61 @@ class GedungController extends Controller
     }
 
     //store with storage
-    public function store(Request $request){
-      $validated = $request->validate([
-        'kode_gedung' => 'nullable|string|max:255',
-        'nama_gedung' => 'nullable|string|max:255',
-        'imagegedung' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Allow image only
-      ]);
-      $imagePath = null;
-      // Handle image upload
-      if ($request->hasFile('imagegedung')) {
-          $image = $request->file('imagegedung');
-          // Check for potentially malicious content in the file
-          if (!in_array($image->getMimeType(), ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'])) {
-              return response()->json(['message' => 'Invalid file type!'], 422);
-          }
-          $imagePath = gedung::uploadImage($request->file('imagegedung'));
-          $data = new gedung();
-          $data->kode_gedung = $request->kode_gedung;
-          $data->nama_gedung =$request->nama_gedung;
-          $data->imagegedung = $imagePath;
-          $data->save();
-      }
-     
-      $data = new gedung();
-      $data->kode_gedung = $request->kode_gedung;
-      $data->nama_gedung =$request->nama_gedung;
-    
-      $data->save();
-      return response()->json(['success' => 'Gedung successfully created!']);     
-     }
+    public function store(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'kode_gedung' => 'required|string|max:255|unique:gedung',
+                'nama_gedung' => 'required|string|max:255',
+                'imagegedung' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            ]);
+
+            $gedung = new gedung();
+            $gedung->kode_gedung = $request->kode_gedung;
+            $gedung->nama_gedung = $request->nama_gedung;
+
+            // Handle image upload
+            if ($request->hasFile('imagegedung')) {
+                $file = $request->file('imagegedung');
+                
+                // Make sure the file is valid
+                if ($file->isValid()) {
+                    // Create a unique filename
+                    $fileName = time() . '_' . Str::slug($request->nama_gedung) . '.' . $file->getClientOriginalExtension();
+                    // Make sure the directory exists
+                    $path = storage_path('app/public/gedung');
+                    if (!file_exists($path)) {
+                        mkdir($path, 0777, true);
+                    }
+                    // Move the file to the storage directory
+                    $file->move($path, $fileName);
+                    // Save the filename to the database
+                    $gedung->imagegedung = $fileName;
+                }
+            }
+            $gedung->save();
+            return response()->json([
+                'success' => true,
+                'message' => 'Data gedung berhasil disimpan',
+                'data' => $gedung
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Gedung Store Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    // public function edit($id)
+    // {
+    //     $gedungs = Gedung::findOrFail($id);
+    //     return response()->json(['data' => $gedungs]);
+    // }
+
 
      public function update(Request $request)
     {
@@ -73,18 +100,24 @@ class GedungController extends Controller
     
         // Jika ada file gambar yang diupload
         if ($request->hasFile('imagegedung')) {
-            $image = $request->file('imagegedung');
-            
+            $image = $request->file('imagegedung');   
+                    
             // Pastikan file yang diupload adalah gambar yang valid
             if (!in_array($image->getMimeType(), ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'])) {
                 return response()->json(['message' => 'Invalid file type!'], 422);
             }
-    
             // Proses upload gambar
-            $imagePath = gedung::uploadImage($request->file('imagegedung'));
-    
-            // Update gambar pada model gedung
-            $gedung->imagegedung = $imagePath;
+            // $imagePath = gedung::uploadImage($request->file('imagegedung'));
+            $fileName = time() . '_' . Str::slug($request->nama_gedung) . '.' . $image->getClientOriginalExtension();
+            $path = storage_path('app/public/gedung');
+            if (!file_exists($path)) {
+                mkdir($path, 0777, true);
+            }
+            // Move the file to the storage directory
+            $image->move($path, $fileName);
+            // Save the filename to the database
+            $gedung->imagegedung = $fileName;
+            // $gedung->imagegedung = $imagePath;
         }
     
         // Update kode dan nama gedung jika ada perubahan

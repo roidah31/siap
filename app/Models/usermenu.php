@@ -8,11 +8,13 @@ class usermenu extends Model
 {
 	protected $fillable = ['name', 'url'];    
     protected $table = 'usermenu';
-    // Definisikan relasi hasMany dengan UserSubmenu, gunakan nama 'submenus'
-    public function submenus()
+    public function useraccessmenu()
     {
-        return $this->hasMany(UserSubmenu::class);
+        return $this->hasMany(useraccessmenu::class, 'menu_id');
     }
-	
+    public function submenu()
+    {
+        return $this->hasMany(usersubmenu::class, 'menu_id');
+    }
 
 }

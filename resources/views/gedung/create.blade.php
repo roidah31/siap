@@ -11,7 +11,7 @@
 							@csrf()
 							@method('post')
 							<div class="box-body">
-								<h4 class="mt-0 mb-20">1. Customer Info:</h4>
+								<h4 class="mt-0 mb-20">1. Gedung info:</h4>
 								<div class="form-group">
 									<label class="form-label">Kode gedung:</label>
 									<input type="text" class="form-control" name="gedungId" id="gedungId" value="75">
@@ -24,8 +24,7 @@
 								<div class="form-group">
 									<label class="form-label">Image:</label>							
 									<input type="file" class="form-control" name="imagegedung" id="imagegedung">
-								</div>
-								
+								</div>								
 							</div>
 							<!-- /.box-body -->
 							<div class="box-footer">

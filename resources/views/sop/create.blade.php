@@ -7,23 +7,18 @@
 						  <h4 class="box-title">Form Sections</h4>
 						</div>
 						<!-- /.box-header -->
-						<form action="{{URL('gedung/update')}}" method="post" enctype="multipart/form-data">
+						<form action="{{URL('sop/store')}}" method="post" enctype="multipart/form-data">
 							@csrf()
 							@method('post')
 							<div class="box-body">
-								<h4 class="mt-0 mb-20">1. Customer Info:</h4>
+								<h4 class="mt-0 mb-20">Customer Info:</h4>
 								<div class="form-group">
 									<label class="form-label">Kode gedung:</label>
-									<input type="text" class="form-control" name="gedungId" id="gedungId" value="75">
-									<input type="text" class="form-control" name="kode_gedung" id="kode_gedung">
-								</div>
-								<div class="form-group">
-									<label class="form-label">nama Gedung:</label>
-									<input type="text" class="form-control" name="nama_gedung" id="nama_gedung" >
+									<input type="text" class="form-control" name="kategori" id="kategori">
 								</div>
 								<div class="form-group">
 									<label class="form-label">Image:</label>							
-									<input type="file" class="form-control" name="imagegedung" id="imagegedung">
+									<input type="file" class="form-control" name="filesop" id="filesop">
 								</div>
 								
 							</div>

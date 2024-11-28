@@ -33,7 +33,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = 'depan'; // route /home
     /**
      * Create a new controller instance.
      *
@@ -126,7 +126,7 @@ class LoginController extends Controller
 		}
 
 		// return response()->json(['message' => 'Login gagal, username atau password salah'], 401);
-        return redirect('/login');
+        return redirect('/depan');// route /login
 	}
 
 
@@ -153,6 +153,6 @@ class LoginController extends Controller
 
     public function dashboard()
     {
-        return view('home');
+        return view('home');// route /home
     }
 }

@@ -134,7 +134,7 @@ function submitForm() {
     }
 
     $.ajax({
-        url: "/barang/store",
+        url: "{{URL('/barang/store')}}",
         method: "POST",
         data: $('#form-barang').serialize(),
         success: function(response) {
@@ -163,7 +163,7 @@ function submitEditForm() {
     };
 
     $.ajax({
-        url: '/barangubah',
+        url: '{{URL('/barangubah')}}',
         method: "POST",
         data: formData,
         success: function(response) {
@@ -190,7 +190,7 @@ function submitDeleteForm() {
     }
 
     $.ajax({
-        url: `/barang/hapus/${id}`,
+        url: `{{URL('/barang/hapus')}}/+${id}`,
         method: "POST",
         data: {
             _token: $('meta[name="csrf-token"]').attr('content')

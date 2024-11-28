@@ -9,7 +9,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form id="gedung-form" method="post" enctype="multipart/form-data" novalidate>
+        <form id="gedung-form" action="{{Route('gedung.store')}}" method="POST" enctype="multipart/form-data" novalidate>
           @csrf
           <input type="hidden" id="gedung_id" name="id">
           
@@ -183,7 +183,7 @@
         if (validateForm()) {
             const formData = new FormData($('#gedung-form')[0]);
             const gedungId = $('#gedung_id').val();
-            const url = gedungId ? `/gedung/update` : '/gedung/store';
+            const url = gedungId ? '{{URL('/gedung/update')}}' : '{{URL('/gedung/store')}}'; // error store path 
             const hasFile = $('#imagegedung')[0].files.length > 0;
 
 			//data yang di update apakah memiliki data file 
@@ -420,6 +420,9 @@
         $('#imagegedung').prop('required', true);
         $('.file-required').show();
         $('#image-preview').addClass('d-none');
+        $('#image-preview img').attr('src', '');
+        $('#image-preview .preview-name').text('');
+        $('#image-preview .preview-size').text('');
         $('#gedung-form input').removeClass('is-invalid');
         $('.invalid-feedback').hide();
         $('.progress').addClass('d-none');
@@ -435,6 +438,17 @@
         $('#nama_gedung').val(item.nama_gedung);
         $('#imagegedung').prop('required', false);
         $('.file-required').hide();
+
+        if (item.imagegedung) {
+          const imageUrl = '{{asset('/storage/gedung')}}/' + item.imagegedung; // Adjust path according to your storage structure
+            $('#image-preview')
+                .removeClass('d-none')
+                .find('img')
+                .attr('src', imageUrl);
+            $('#image-preview .preview-name').text('Current Image');
+            $('#image-preview .preview-size').text(''); // You can add file size if available
+            originalImage = item.imagegedung;
+        }
     }
 
     // Delete functionality with confirmation modal
@@ -448,7 +462,7 @@
     $('#confirm-delete').on('click', function() {
         const id = $('#delete-id').val();
         $.ajax({
-            url: `/gedung/destroy/${id}`,
+            url: `{{URL('/gedung/destroy')}}/${id}`,
             type: 'POST',
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content')

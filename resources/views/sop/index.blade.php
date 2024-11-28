@@ -68,39 +68,54 @@
 
 <script>
 $(document).ready(function() {
-    $('.download-btn').on('click', function() {
-        const fileId = $(this).data('id');
-        const btn = $(this);
-        
-        // Disable button during request
-        btn.prop('disabled', true);
-        
-        // Get secure download URL
-        $.ajax({
-            url: '/sop/get-download-url/' + fileId,
-            method: 'GET',
-            success: function(response) {
-                if (response.success) {
-                    // Create temporary anchor and trigger download
-                    const link = document.createElement('a');
-                    link.href = response.download_url;
-                    link.setAttribute('download', '');
-                    link.click();
-                    document.body.removeChild(linnk);
+    // Toastr configuration
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "timeOut": "5000",
+        "extendedTimeOut": "2000"
+    };
 
-                    setTimeout(function(){
-                      btn.prop('disabled',false);
-                    },1000)
+    // Handle download button clicks
+    $(document).on('click', '.download-btn', function() {
+        const btn = $(this);
+        const fileId = btn.data('id');
+        
+        // Prevent double-clicks
+        if (btn.prop('disabled')) return;
+        
+        // Show loading state
+        btn.prop('disabled', true)
+           .html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+        
+        // Request download URL
+        $.ajax({
+            url: `{{URL('/sop/get-download-url')}}/${fileId}`,
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success && response.download_url) {
+                    // Start download
+                    window.location.href = response.download_url;
+                    toastr.success('File sedang didownload', 'Success');
                 } else {
-                    alert('Error generating download link');
-                    btn.prop('disabled', false);
+                    toastr.error(response.message || 'Gagal mengunduh file', 'Error');
                 }
             },
-            error: function() {
-                alert('Error generating download link');
+            error: function(xhr) {
+                const errorMsg = xhr.responseJSON?.message || 'Terjadi kesalahan saat download';
+                toastr.error(errorMsg, 'Error');
+                console.error('Download error:', xhr);
             },
             complete: function() {
-                btn.prop('disabled', false);
+                // Reset button after delay
+                setTimeout(() => {
+                    btn.prop('disabled', false)
+                       .html('<i class="fas fa-download"></i> Download');
+                }, 1000);
             }
         });
     });

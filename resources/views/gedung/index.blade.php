@@ -25,7 +25,14 @@
        <tr>       
          <td>{{$r->kode_gedung}}</td>
          <td>{{$r->nama_gedung}}</td>
-         <td>{{$r->imagegedung }}</td>
+         <td>@if($r->imagegedung =='-') - 
+          @else 
+            <img src="{{ asset('/storage/gedung/' . $r->imagegedung) }}" 
+                     alt="{{ $r->nama_gedung }}" 
+                     width="100" height="100">
+
+          @endif
+          </td>
          <td><button type="button" class="btn btn-info edit-button" 
                 data-item='@json($r)'>Edit
               </button>

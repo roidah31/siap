@@ -66,7 +66,7 @@
           <td>{{$r->perbaikan}}</td>         
           <td>{{ $r->perbaikanke}}</td>
           <td>
-            <button type="button" 
+              <button type="button" 
                     class="btn btn-info btn-sm edit-button mb-1" 
                     data-item='{
                         "id": "{{$r->id}}",
@@ -88,10 +88,9 @@
                         "status": "{{$r->status}}"
                     }'>
                 <i class="fas fa-edit"></i> Edit
-            </button>
+              </button>
             <form action="{{route('aset.destroy',$r->id)}}" method="post" class="d-inline">
                 @csrf
-                @method('DELETE')
                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah anda yakin ingin menghapus data ini?')">
                     <i class="fas fa-trash"></i> Delete
                 </button>
@@ -100,6 +99,26 @@
        </tr>
       @endforeach
      </tbody>
+     <tfoot>
+        <tr>
+          <th>No serial </th>
+          <th>Nama Barang</th>
+          <th>Fungsi Barang</th>
+          <th>Unit</th>
+          <th>Lantai</th>
+          <th>Ruang</th>
+          <th>Semester</th>
+          <th>Tahun</th>
+          <th>Status</th>
+          <th>Nama Penginput</th>
+          <th>Unit Penginput</th>
+          <th>Masa Hidup</th>
+          <th>Penghapusan</th>
+          <th>Perbaikan</th>
+          <th>Perbaikan ke</th>
+          <th>Aksi</th>
+        </tr>
+     </tfoot>
    </table>
    </div>
  </div>

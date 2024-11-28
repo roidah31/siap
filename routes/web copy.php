@@ -41,12 +41,6 @@ Route::controller(App\Http\Controllers\GedungController::class)->group(function(
     Route::get('/gedung/tambah','create')->name('gedung.tambah');
     Route::post('/gedung/destroy/{id}','destroy')->name('gedung.destroy');
     Route::post('/gedung/update','update')->name('gedung.update');
-    Route::get('/gedung/edit/{id}', 'edit')->name('gedung.edit');
-
-    // Route::post('/store', [GedungController::class, 'store'])->name('gedung.store');
-    // Route::post('/update/{id}', [GedungController::class, 'update'])->name('gedung.update');
-    // Route::delete('/destroy/{id}', [GedungController::class, 'destroy'])->name('gedung.destroy');
-    
 });
 
 Route::controller(App\Http\Controllers\SopController::class)->group(function() {
@@ -55,8 +49,8 @@ Route::controller(App\Http\Controllers\SopController::class)->group(function() {
     Route::get('/sop/tambah','create')->name('sop.tambah');
     Route::post('/sop/destroy/{id}','destroy')->name('sop.destroy');
     Route::post('/sop/update', 'update')->name('sop.update');
-    Route::get('/sop/get-download-url/{id}', 'getDownloadUrl')->name('sop.get-download-url');
-    Route::get('/sop/download/{token}', 'download')->name('sop.download');
+    Route::get('/sop/get-download-url/{id}', 'getSecureDownloadUrl')->name('sop.get-download-url');
+    Route::get('/sop/download/{token}', 'handleSecureDownload')->name('sop.secure-download');
 });
 
 Route::controller(App\Http\Controllers\UnitController::class)->group(function() {
@@ -73,14 +67,12 @@ Route::controller(App\Http\Controllers\AssetController::class)->group(function()
     Route::get('/aset/tambah','create')->name('aset.tambah');
     Route::post('/aset/delete/{id}','destroy')->name('aset.destroy');
     Route::put('/aset/update', 'update')->name('aset.update');
-    Route::get('/get-lantai',  'getLantai')->name('get.lantai');
-    Route::get('/get-units', 'getUnitByLantai')->name('get.units');
-
     // laporan 
     Route::get('/aset/laporan', 'laporan')->name('aset.laporan');
     Route::get('/aset/laporan_data', 'record')->name('aset.laporan_data');
-    Route::post('/aset/laporan',  'laporan')->name('aset.laporan');
-    Route::get('/aset/export-pdf',  'exportPdf')->name('aset.export.pdf');
+    // Route::post('/aset/laporan',  'laporan')->name('aset.laporan.filter');
+    // Route::post('/get-units',  'getUnits')->name('get.units');
+    // Route::get('/aset/export-pdf',  'exportPdf')->name('aset.export.pdf');
 
 });//end Asset
 });

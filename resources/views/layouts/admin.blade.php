@@ -52,7 +52,6 @@
 	<script src="{{asset('assets/js/template.js')}}"></script>
 	<script src="{{asset('assets/vendor_components/datatable/datatables.min.js')}}"></script>
 	<script src="{{asset('assets/js/pages/data-table.js')}}"></script>
-
   <script src="{{asset('assets/vendor_components/jquery-toast-plugin-master/src/jquery.toast.js')}}"></script>
 
 
@@ -94,7 +93,7 @@ let idleTime = 0;
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                     },
                 }).then(() => {
-                    window.location.href = '/depan';
+                    window.location.href = 'htps://mitra.unipasby.ac.id';
                 });
             }
         }

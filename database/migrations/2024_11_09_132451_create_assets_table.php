@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama_barang');
             $table->string('fungsi_barang');
+            $table->string('unit_mitra');
             $table->string('kode_gedung');
             $table->string('unit');
             $table->integer('lantai');

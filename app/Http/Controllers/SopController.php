@@ -11,6 +11,9 @@ use PhpOffice\PhpWord\IOFactory as WordIOFactory;
 use PhpOffice\PhpSpreadsheet\IOFactory as SpreadsheetIOFactory;
 use Smalot\PdfParser\Parser as PdfParser;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
+
+
 //secure addons
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
@@ -18,26 +21,6 @@ use Illuminate\Support\Facades\Cache;
 
 class SopController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    private function processAndStoreFile($file, $directory = 'sop')
-    {
-        // Generate file hash before moving it to storage
-        $fileHash = hash_file('sha256', $file->getPathname());
-        
-        // Create filename with timestamp
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        
-        // Store file
-        $filePath = $file->storeAs($directory, $fileName, 'public');
-        
-        return [
-            'path' => $filePath,
-            'hash' => $fileHash,
-            'original_name' => $file->getClientOriginalName()
-        ];
-    }
 
     public function index()
     {
@@ -45,7 +28,49 @@ class SopController extends Controller
         return view('sop.index',compact('sop'));
     }
 
-  
+   
+
+    private function processAndStoreFile($file, $directory = 'sop')
+    {
+        try {
+            $fileHash = hash_file('sha256', $file->getPathname());        
+            $fileName = time() . '_' . Str::slug($file->getClientOriginalName());
+            
+            // Get storage path
+            $filePath = storage_path('app/public/sop');
+            
+            // Create directory if doesn't exist
+            if (!file_exists($filePath)) {
+                mkdir($filePath, 0755, true);
+            }
+            
+            // Move file
+            $file->move($filePath, $fileName);
+            
+            return [
+                'path' => $fileName,
+                'hash' => $fileHash,
+                'original_name' => $file->getClientOriginalName()
+            ];
+        } catch (\Exception $e) {
+            Log::error('File processing error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    private function generateSecureDownloadUrl($sopId)
+    {
+        try {
+            $token = Str::random(64);
+            Cache::put('download_token_' . $token, $sopId, now()->addMinutes(30));
+            $encryptedToken = Crypt::encryptString($token);
+            return route('sop.download', ['token' => $encryptedToken]);
+        } catch (\Exception $e) {
+            Log::error('Error generating download URL: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -63,26 +88,25 @@ class SopController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
-
             $data = new sop();
             $data->kategori = $request->kategori;
-
             if ($request->hasFile('filesop')) {
+                $files = $request->file('filesop');
                 $fileInfo = $this->processAndStoreFile($request->file('filesop'));
-                
                 $data->filesop = $fileInfo['path'];
                 $data->file_hash = $fileInfo['hash'];
                 $data->original_filename = $fileInfo['original_name'];
+               
+               
+
+
             }
-
             $data->save();
-
             return response()->json([
                 'success' => true,
                 'message' => 'Data berhasil disimpan',
                 'file_hash' => $data->file_hash
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error in SopController@store: ' . $e->getMessage());
             return response()->json([
@@ -92,6 +116,10 @@ class SopController extends Controller
         }
     }
 
+
+    public function create(){
+        return view('sop.create');
+    }
     private function readDocContent($file)
     {
         $phpWord = IOFactory::load($file->getPathname());
@@ -165,86 +193,92 @@ class SopController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+   
     public function destroy($id)
-    {
-        $sop = sop::findorFail($id);
-        if($sop->filesop){
-            Storage::disk('public')->delete($sop->filesop);
-        }
-        $sop->delete();
-        return response()->json(['success'=>'Data sop successfully deleted! ']);
-
-    }
-
-    //Download section with secure url 
-    private function generateSecureDownloadUrl($sopId)
-    {
-        // Generate random token
-        $token = Str::random(64);
-        
-        // Store token in cache for 1 hour with SOP ID
-        Cache::put('download_token_' . $token, $sopId, now()->addHour());
-        
-        // Encrypt token
-        $encryptedToken = Crypt::encryptString($token);
-        
-        return route('sop.secure-download', ['token' => $encryptedToken]);
-    }
-
-    /**
-     * Handle secure download with token
-     */
-    public function getSecureDownloadUrl($id)
     {
         try {
             $sop = Sop::findOrFail($id);
-            $downloadUrl = $this->generateSecureDownloadUrl($sop->id);
+            $filePath = 'app/public/sop/' . basename($sop->filesop);
             
+            if ($sop->filesop && file_exists(storage_path($filePath))) {
+                unlink(storage_path($filePath));
+            }
+            
+            $sop->delete();
+            return response()->json(['success' => 'Data SOP berhasil dihapus!']);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Error deleting SOP: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    public function getDownloadUrl($id)
+    {
+        try {
+            $sop = Sop::findOrFail($id);
+            $filePath = storage_path('app/public/sop/' . $sop->filesop);
+            
+            if (!file_exists($filePath)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File tidak ditemukan'
+                ], 404);
+            }
+
+            $downloadUrl = $this->generateSecureDownloadUrl($sop->id);
             return response()->json([
                 'success' => true,
                 'download_url' => $downloadUrl
             ]);
+
         } catch (\Exception $e) {
+            Log::error('Download URL generation error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Error generating download link'
+                'message' => 'Gagal generate link download'
             ], 500);
         }
     }
-    
-    public function handleSecureDownload($token)
+
+    public function download($token)
     {
         try {
-            // Decrypt token
             $decryptedToken = Crypt::decryptString($token);
-            
-            // Get SOP ID from cache
             $sopId = Cache::get('download_token_' . $decryptedToken);
             
             if (!$sopId) {
-                abort(403, 'Invalid or expired download link');
+                throw new \Exception('Link download tidak valid atau expired');
             }
-            
-            // Get SOP record
+
             $sop = Sop::findOrFail($sopId);
-            
-            if (!$sop->filesop || !Storage::disk('public')->exists($sop->filesop)) {
-                abort(404, 'File not found');
+            $filePath = storage_path('app/public/sop/' . $sop->filesop);
+
+            if (!file_exists($filePath)) {
+                throw new \Exception('File tidak ditemukan');
             }
-            
-            // Delete token from cache after use
+
+            $mimeType = mime_content_type($filePath) ?: 'application/octet-stream';
             Cache::forget('download_token_' . $decryptedToken);
-            $previousUrl = url()->previous();
-            // Return file for download
-            return Storage::disk('public')->download(
-                $sop->filesop,
-                $sop->original_filename
+
+            return Response::download(
+                $filePath,
+                $sop->original_filename,
+                [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $sop->original_filename . '"'
+                ]
             );
 
         } catch (\Exception $e) {
-            abort(500, 'Error processing download');
+            Log::error('Download error: ' . $e->getMessage());
+            abort(500, 'Gagal memproses download: ' . $e->getMessage());
         }
     }
+    
     
 
   

@@ -10,9 +10,11 @@ class usersubmenu extends Model
     protected $table = 'usersubmenu';
 
     // Relasi balik ke UserMenu
-    public function userMenu()
+    public function menu()
     {
-        return $this->belongsTo(UserMenu::class);
+        return $this->belongsTo(usermenu::class, 'menu_id');
     }
+
+   
 	
 }

@@ -13,7 +13,7 @@
 				  </a>
 				</li>
 			  	<li class="header">Profile</li>				
-						
+				
 				  @foreach($menus as $menu)
 					@if($menu->submenus->isNotEmpty())
 						<!-- Menu with Submenu -->
@@ -46,7 +46,6 @@
 						</li>
 					@endif
 				@endforeach
-				
 					 	     
 			  </ul>
 		  </div>
